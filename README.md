@@ -6,16 +6,28 @@ The program models a city as a weighted graph. Vertices are districts, edges are
 
 ### Running the project
 
-JDK 17 or newer is required. Run these commands from the project folder:
+JDK 17 or newer is required. No external libraries are needed.
+
+In VS Code, install the Java extensions, open the whole project folder, and use Run above the `main` method in:
+
+- `src/Main.java` for the demonstration.
+- `tests/GraphTest.java` for correctness tests.
+- `src/experiments/Benchmark.java` for experiments and result files.
+
+Use the same JDK for the project's Java compilation and execution. Run benchmarks with the project root as the working directory, so the files are saved in `results/`. VS Code manages its own compiled files; these are not submitted.
+
+Alternatively, compile and run from a macOS/Linux terminal in the project root:
 
 ```sh
-sh run.sh demo
-sh run.sh test
-sh run.sh benchmark
-sh run.sh all
+mkdir -p out
+find src tests -name '*.java' -print > out/sources.txt
+javac --release 17 -encoding UTF-8 -d out @out/sources.txt
+java -cp out Main
+java -cp out GraphTest
+java -cp out experiments.Benchmark
 ```
 
-The script compiles the project before running it. `demo` shows examples, `test` checks correctness, `benchmark` creates the result files, and `all` runs all three. No external libraries are needed. The compiled files are stored in `bin`, which is ignored by Git.
+Terminal compilation uses `out` to keep it separate from VS Code's build files. Both `bin` and `out` are ignored by Git.
 
 The README is edited manually. After a new benchmark run, update the tables and discussion from `results/tables/summary.csv`.
 
@@ -33,7 +45,6 @@ src/
 tests/GraphTest.java
 results/tables/
 results/plots/
-run.sh
 README.md
 ```
 
@@ -170,7 +181,7 @@ The operation growth agrees with the theoretical bounds, while time ratios are a
 
 ## Testing
 
-Run `sh run.sh test`. The latest checked version passes 32,599 individual assertions. This is the number of checks, not the number of separate test cases. The tests throw `AssertionError` on failure and do not need the `-ea` flag.
+Run `GraphTest` in VS Code or use `java -cp out GraphTest` after terminal compilation. The latest checked version passes 32,599 individual assertions. This is the number of checks, not the number of separate test cases. The tests throw `AssertionError` on failure and do not need the `-ea` flag.
 
 Required cases are small graphs, disconnected graphs, cycles, multiple valid MSTs, unreachable vertices, repeated weights, and a single vertex. Extra checks cover invalid vertices, negative and zero weights, parallel edges, self-loops, old queue entries, and sums larger than `Integer.MAX_VALUE`.
 
