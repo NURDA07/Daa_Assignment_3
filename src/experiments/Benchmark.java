@@ -132,7 +132,6 @@ public class Benchmark {
                 + "\nOperation counters are enabled during timing.\n");
         PlotWriter.write(rows, plots.resolve("time-vs-vertices.svg"), true);
         PlotWriter.write(rows, plots.resolve("time-vs-edges.svg"), false);
-        writeResults(rows, tables.resolve("results.md"));
         System.out.println("Saved results/tables and results/plots");
         System.out.println("Consumed result: " + sink);
     }
@@ -161,21 +160,5 @@ public class Benchmark {
             last = metrics;
         }
         rows.add(new Row(algorithm, type, v, e, total / (double) REPEATS, last));
-    }
-
-    private static void writeResults(List<Row> rows, Path path) throws IOException {
-        StringBuilder text = new StringBuilder("# Measured results\n\n");
-        text.append("Times are means of five measured runs after ten warmups. Counters are per run.\n\n");
-        text.append("| Algorithm | V | E | Mean (microseconds) | Edge examinations | Comparisons | Find calls | Union calls | Parent traversals | Queue adds | Queue polls | Relaxations | Vertex visits |\n");
-        text.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n");
-        for (Row row : rows) {
-            Metrics m = row.getMetrics();
-            text.append(String.format(Locale.ROOT,
-                    "| %s | %d | %d | %.3f | %d | %d | %d | %d | %d | %d | %d | %d | %d |%n",
-                    row.getAlgorithm(), row.getVertices(), row.getEdges(), row.getAverageNs() / 1000,
-                    m.edgeExaminations, m.comparisons, m.findCalls, m.unionCalls, m.parentTraversals,
-                    m.queueAdds, m.queuePolls, m.relaxations, m.vertexVisits));
-        }
-        Files.writeString(path, text.toString());
     }
 }

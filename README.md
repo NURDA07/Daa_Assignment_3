@@ -17,7 +17,7 @@ sh run.sh all
 
 The script compiles the project before running it. `demo` shows examples, `test` checks correctness, `benchmark` creates the result files, and `all` runs all three. No external libraries are needed. The compiled files are stored in `bin`, which is ignored by Git.
 
-The README is edited manually. After a new benchmark run, update the tables and discussion from `results/tables/summary.csv` or `results/tables/results.md`.
+The README is edited manually. After a new benchmark run, update the tables and discussion from `results/tables/summary.csv`.
 
 ### Structure
 
