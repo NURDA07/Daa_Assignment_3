@@ -56,10 +56,10 @@ public class Main {
 
     private static void printMst(String name, MSTResult result) {
         System.out.println("\n" + name + ": "
-                + (result.connected() ? "MST" : "no MST; minimum spanning forest"));
-        for (Edge edge : result.edges()) {
+                + (result.isConnected() ? "MST" : "no MST; minimum spanning forest"));
+        for (Edge edge : result.getEdges()) {
             System.out.println(edge.from + " -- " + edge.to + ", weight=" + edge.weight);
         }
-        System.out.println("Total weight: " + result.totalWeight());
+        System.out.println("Total weight: " + result.getTotalWeight());
     }
 }

@@ -44,24 +44,24 @@ public class Benchmark {
             Graph undirected = GraphGeneration.connectedUndirected(v, e, SEED);
             Graph dag = GraphGeneration.dag(v, e, SEED);
             Graph cyclic = GraphGeneration.cyclicDirected(v, e, SEED);
-            long expectedMst = Kruskal.compute(undirected).totalWeight();
-            if (Prim.compute(undirected).totalWeight() != expectedMst
+            long expectedMst = Kruskal.compute(undirected).getTotalWeight();
+            if (Prim.compute(undirected).getTotalWeight() != expectedMst
                     || TopoSort.compute(dag).hasCycle() || !TopoSort.compute(cyclic).hasCycle()) {
                 throw new IllegalStateException("Generated graph validation failed");
             }
             measure("Kruskal", "connected-undirected", v, e, metrics -> {
                 MSTResult result = Kruskal.compute(undirected, metrics);
-                if (!result.connected() || result.totalWeight() != expectedMst) {
+                if (!result.isConnected() || result.getTotalWeight() != expectedMst) {
                     throw new IllegalStateException("Incorrect Kruskal result");
                 }
-                return result.totalWeight();
+                return result.getTotalWeight();
             }, rows, raw);
             measure("Prim", "connected-undirected", v, e, metrics -> {
                 MSTResult result = Prim.compute(undirected, metrics);
-                if (!result.connected() || result.totalWeight() != expectedMst) {
+                if (!result.isConnected() || result.getTotalWeight() != expectedMst) {
                     throw new IllegalStateException("Incorrect Prim result");
                 }
-                return result.totalWeight();
+                return result.getTotalWeight();
             }, rows, raw);
             measure("Kosaraju", "cyclic-directed", v, e,
                     metrics -> Kosaraju.compute(cyclic, metrics).size(), rows, raw);

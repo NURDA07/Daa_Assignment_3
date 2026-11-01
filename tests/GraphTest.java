@@ -125,20 +125,20 @@ public class GraphTest {
 
     private static void verifyMst(Graph graph, long weight, boolean connected) {
         for (MSTResult result : List.of(Kruskal.compute(graph), Prim.compute(graph))) {
-            check(result.totalWeight() == weight, "Expected MST/forest weight " + weight);
-            check(result.connected() == connected, "Connectivity flag");
+            check(result.getTotalWeight() == weight, "Expected MST/forest weight " + weight);
+            check(result.isConnected() == connected, "Connectivity flag");
             DSU selected = new DSU(graph.getVertexCount());
             long sum = 0;
-            for (Edge edge : result.edges()) {
+            for (Edge edge : result.getEdges()) {
                 check(selected.union(edge.from, edge.to), "Selected forest has no cycle");
                 sum += edge.weight;
             }
-            check(sum == result.totalWeight(), "Selected weights sum correctly");
+            check(sum == result.getTotalWeight(), "Selected weights sum correctly");
             for (Edge edge : graph.getEdges()) {
                 check(selected.find(edge.from) == selected.find(edge.to), "Forest spans input components");
             }
             if (connected) {
-                check(result.edges().size() == graph.getVertexCount() - 1, "MST has V-1 edges");
+                check(result.getEdges().size() == graph.getVertexCount() - 1, "MST has V-1 edges");
             }
         }
     }
@@ -261,8 +261,8 @@ public class GraphTest {
                 Edge b = same.getEdges().get(i);
                 check(a.from == b.from && a.to == b.to && a.weight == b.weight, "Seed reproducibility");
             }
-            check(Kruskal.compute(graph).connected(), "Generated MST graph connected");
-            check(Kruskal.compute(graph).totalWeight() == Prim.compute(graph).totalWeight(), "Generated MST agreement");
+            check(Kruskal.compute(graph).isConnected(), "Generated MST graph connected");
+            check(Kruskal.compute(graph).getTotalWeight() == Prim.compute(graph).getTotalWeight(), "Generated MST agreement");
             Graph dag = GraphGeneration.dag(size[0], size[1], 42);
             Graph cyclic = GraphGeneration.cyclicDirected(size[0], size[1], 42);
             check(dag.getEdges().size() == size[1], "DAG edge count");
@@ -308,7 +308,7 @@ public class GraphTest {
                 }
             }
             MSTResult result = Kruskal.compute(undirected);
-            verifyMst(undirected, bruteForestWeight(undirected), result.connected());
+            verifyMst(undirected, bruteForestWeight(undirected), result.isConnected());
             checkScc(directed);
             boolean hasCycle = Kosaraju.compute(directed).stream().anyMatch(group -> group.size() > 1);
             check(TopoSort.compute(directed).hasCycle() == hasCycle, "Random cycle detection");
