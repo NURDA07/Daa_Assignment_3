@@ -1,5 +1,5 @@
-package temp_dsu;
+package dsu;
 
-public class TempDSU {
+public class DSU {
     
 }
