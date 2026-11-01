@@ -177,55 +177,5 @@ public class Benchmark {
                     m.queueAdds, m.queuePolls, m.relaxations, m.vertexVisits));
         }
         Files.writeString(path, text.toString());
-        updateReadme(rows, text.toString());
-    }
-
-    private static void updateReadme(List<Row> rows, String table) throws IOException {
-        Path readme = Path.of("README.md");
-        if (!Files.exists(readme)) {
-            return;
-        }
-        String original = Files.readString(readme);
-        int start = original.indexOf("## Results\n");
-        int end = original.indexOf("## Testing\n");
-        if (start < 0 || end < start) {
-            return;
-        }
-        StringBuilder replacement = new StringBuilder("## Results\n\n");
-        replacement.append(table.substring(table.indexOf("\n\n") + 2));
-        replacement.append("\nThe detailed data is in [raw.csv](results/tables/raw.csv) and [summary.csv](results/tables/summary.csv). Zero counters mean that type of operation was not recorded for the algorithm, not that no work was performed.\n\n");
-        replacement.append("![Execution time vs vertices](results/plots/time-vs-vertices.svg)\n\n");
-        replacement.append("![Execution time vs edges](results/plots/time-vs-edges.svg)\n\n");
-        replacement.append("Both plots use the same three configurations, so V and E change together. They do not isolate the causal effect of one variable. All algorithms are shown on linear axes; very short runtimes appear near the baseline.\n\n");
-        replacement.append("## Comparison and Discussion\n\n");
-        for (int v : new int[]{10, 100, 1000}) {
-            Row kruskal = findRow(rows, "Kruskal", v);
-            Row prim = findRow(rows, "Prim", v);
-            replacement.append(String.format(Locale.ROOT,
-                    "- At V=%d, Kruskal averaged %.3f microseconds and Prim %.3f microseconds; %s was faster in this run. Kruskal recorded %d sort comparisons and %d union calls; Prim recorded %d heap comparisons and %d queue polls.%n",
-                    v, kruskal.getAverageNs() / 1000, prim.getAverageNs() / 1000,
-                    kruskal.getAverageNs() <= prim.getAverageNs() ? "Kruskal" : "Prim",
-                    kruskal.getMetrics().comparisons, kruskal.getMetrics().unionCalls,
-                    prim.getMetrics().comparisons, prim.getMetrics().queuePolls));
-        }
-        replacement.append("\nKruskal sorts all E edges but can stop its DSU scan early. Prim avoids global sorting but maintains and drains a lazy heap, including obsolete candidate edges. Comparator counts are not the entire cost: allocations, list copies, DSU work, and heap maintenance also matter. A winner on these inputs is not a universal winner. DSU path compression and union by size keep root searches short; the traversal counter records actual link-following work, but no unoptimized DSU timing experiment is claimed.\n\n");
-        Row sccSmall = findRow(rows, "Kosaraju", 10);
-        Row sccLarge = findRow(rows, "Kosaraju", 1000);
-        replacement.append(String.format(Locale.ROOT,
-                "Kosaraju averaged %.3f microseconds for the small input and %.3f for the large input. Its edge examinations are exactly 3E (first traversal, transpose construction, second traversal) and vertex visits are exactly 2V. These counts agree with O(V+E), even when elapsed-time ratios differ because of JVM and allocation effects.%n%n",
-                sccSmall.getAverageNs() / 1000, sccLarge.getAverageNs() / 1000));
-        replacement.append("Topological sorting on the DAG examines 2E edges and removes all V vertices. On the cyclic input it examines E edges for indegrees, but removes no vertices because the ring and forward chain give every vertex positive indegree. Its smaller measured cost is a property of this input, not a faster asymptotic bound for all cyclic graphs.\n\n");
-        Row dijkstraSmall = findRow(rows, "Dijkstra", 10);
-        Row dijkstraLarge = findRow(rows, "Dijkstra", 1000);
-        replacement.append(String.format(Locale.ROOT,
-                "Dijkstra averaged %.3f microseconds on the small graph and %.3f on the large graph. It examines E edges to validate weights plus 2E adjacency entries because every vertex in the connected undirected graph is reachable. Successful relaxations and stale heap records depend on the weights and graph topology, explaining changes in heap comparisons and polls.%n%n",
-                dijkstraSmall.getAverageNs() / 1000, dijkstraLarge.getAverageNs() / 1000));
-        replacement.append("The fixed seed makes the inputs and operation counts reproducible, not wall-clock durations. Five measured runs, ten warmups, shared-JVM execution, and counters enabled during timing limit statistical conclusions. Use raw runs to inspect variability. No exact proportional growth or statistically significant speed difference is claimed.\n\n");
-        Files.writeString(readme, original.substring(0, start) + replacement + original.substring(end));
-    }
-
-    private static Row findRow(List<Row> rows, String algorithm, int vertices) {
-        return rows.stream().filter(row -> row.getAlgorithm().equals(algorithm)
-                && row.getVertices() == vertices).findFirst().orElseThrow();
     }
 }

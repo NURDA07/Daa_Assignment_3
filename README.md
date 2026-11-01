@@ -17,7 +17,7 @@ sh run.sh benchmark
 sh run.sh all
 ```
 
-The script compiles all source and test files before running the selected command. `demo` is the default. `all` runs tests, the demonstration, and benchmarks. Benchmarks regenerate CSV files, SVG plots, and the measured Results and Comparison sections of this README. Actual timings vary between runs.
+The script compiles all source and test files before running the selected command. `demo` is the default. `all` runs tests, the demonstration, and benchmarks. Benchmarks regenerate CSV files, SVG plots, and results/tables/results.md. This README is edited manually. After rerunning benchmarks, update its Results and Comparison sections using the new data. Actual timings vary between runs.
 
 In VS Code, `Main.java` can also be run with Run Java. Tests are in `GraphTest.java`; benchmarks are in `Benchmark.java`. For benchmark output paths to be correct, the working directory must be the project root.
 
