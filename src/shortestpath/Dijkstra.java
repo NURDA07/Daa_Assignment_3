@@ -12,7 +12,23 @@ import java.util.PriorityQueue;
 public class Dijkstra {
     public static final long INF = Long.MAX_VALUE;
 
-    private record Entry(int vertex, long distance) { }
+    private static class Entry {
+        private final int vertex;
+        private final long distance;
+
+        private Entry(int vertex, long distance) {
+            this.vertex = vertex;
+            this.distance = distance;
+        }
+
+        private int getVertex() {
+            return vertex;
+        }
+
+        private long getDistance() {
+            return distance;
+        }
+    }
 
     public static class Result {
         private final int source;
@@ -75,20 +91,20 @@ public class Dijkstra {
         distances[source] = 0;
         PriorityQueue<Entry> queue = new PriorityQueue<>((a, b) -> {
             metrics.comparisons++;
-            return Long.compare(a.distance(), b.distance());
+            return Long.compare(a.getDistance(), b.getDistance());
         });
         queue.add(new Entry(source, 0));
         metrics.queueAdds++;
         while (!queue.isEmpty()) {
             Entry entry = queue.poll();
             metrics.queuePolls++;
-            if (entry.distance() != distances[entry.vertex()]) {
+            if (entry.getDistance() != distances[entry.getVertex()]) {
                 continue;
             }
             metrics.vertexVisits++;
-            for (Edge edge : graph.getNeighbors(entry.vertex())) {
+            for (Edge edge : graph.getNeighbors(entry.getVertex())) {
                 metrics.edgeExaminations++;
-                long candidate = entry.distance() + edge.weight;
+                long candidate = entry.getDistance() + edge.weight;
                 if (candidate < distances[edge.to]) {
                     distances[edge.to] = candidate;
                     previous[edge.to] = edge.from;
