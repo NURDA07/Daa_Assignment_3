@@ -15,9 +15,9 @@ public class PlotWriter {
         double maxTime = 0;
         int maxX = 0;
         for (Benchmark.Row row : rows) {
-            series.computeIfAbsent(row.algorithm(), key -> new ArrayList<>()).add(row);
-            maxTime = Math.max(maxTime, row.averageNs() / 1000);
-            maxX = Math.max(maxX, vertices ? row.vertices() : row.edges());
+            series.computeIfAbsent(row.getAlgorithm(), key -> new ArrayList<>()).add(row);
+            maxTime = Math.max(maxTime, row.getAverageNs() / 1000);
+            maxX = Math.max(maxX, vertices ? row.getVertices() : row.getEdges());
         }
         maxTime = Math.max(1, maxTime * 1.12);
         maxX = (int) (maxX * 1.05);
@@ -45,15 +45,15 @@ public class PlotWriter {
             String color = colors[index];
             StringBuilder points = new StringBuilder();
             for (Benchmark.Row row : entry.getValue()) {
-                double x = 95 + 700.0 * (vertices ? row.vertices() : row.edges()) / maxX;
-                double y = 535 - 420 * (row.averageNs() / 1000) / maxTime;
+                double x = 95 + 700.0 * (vertices ? row.getVertices() : row.getEdges()) / maxX;
+                double y = 535 - 420 * (row.getAverageNs() / 1000) / maxTime;
                 points.append(String.format(Locale.ROOT, "%.2f,%.2f ", x, y));
             }
             svg.append("<polyline fill=\"none\" stroke=\"").append(color)
                     .append("\" stroke-width=\"2.5\" points=\"").append(points).append("\"/>");
             for (Benchmark.Row row : entry.getValue()) {
-                double x = 95 + 700.0 * (vertices ? row.vertices() : row.edges()) / maxX;
-                double y = 535 - 420 * (row.averageNs() / 1000) / maxTime;
+                double x = 95 + 700.0 * (vertices ? row.getVertices() : row.getEdges()) / maxX;
+                double y = 535 - 420 * (row.getAverageNs() / 1000) / maxTime;
                 svg.append(String.format(Locale.ROOT,
                         "<circle cx=\"%.2f\" cy=\"%.2f\" r=\"4\" fill=\"%s\"/>", x, y, color));
             }

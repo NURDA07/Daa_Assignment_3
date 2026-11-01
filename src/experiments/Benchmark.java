@@ -26,8 +26,48 @@ public class Benchmark {
         long run(Metrics metrics);
     }
 
-    public record Row(String algorithm, String graphType, int vertices, int edges,
-                      double averageNs, Metrics metrics) { }
+    public static class Row {
+        private final String algorithm;
+        private final String graphType;
+        private final int vertices;
+        private final int edges;
+        private final double averageNs;
+        private final Metrics metrics;
+
+        public Row(String algorithm, String graphType, int vertices, int edges,
+                   double averageNs, Metrics metrics) {
+            this.algorithm = algorithm;
+            this.graphType = graphType;
+            this.vertices = vertices;
+            this.edges = edges;
+            this.averageNs = averageNs;
+            this.metrics = metrics;
+        }
+
+        public String getAlgorithm() {
+            return algorithm;
+        }
+
+        public String getGraphType() {
+            return graphType;
+        }
+
+        public int getVertices() {
+            return vertices;
+        }
+
+        public int getEdges() {
+            return edges;
+        }
+
+        public double getAverageNs() {
+            return averageNs;
+        }
+
+        public Metrics getMetrics() {
+            return metrics;
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         Path tables = Path.of("results", "tables");
@@ -76,10 +116,10 @@ public class Benchmark {
         List<String> summary = new ArrayList<>();
         summary.add("algorithm,graph_type,vertices,edges,average_time_ns," + Metrics.csvHeader());
         for (Row row : rows) {
-            summary.add(String.format(Locale.ROOT, "%s,%s,%d,%d,%.2f,%s", row.algorithm(),
-                    row.graphType(), row.vertices(), row.edges(), row.averageNs(), row.metrics().csvValues()));
+            summary.add(String.format(Locale.ROOT, "%s,%s,%d,%d,%.2f,%s", row.getAlgorithm(),
+                    row.getGraphType(), row.getVertices(), row.getEdges(), row.getAverageNs(), row.getMetrics().csvValues()));
             System.out.printf(Locale.ROOT, "%-12s V=%4d E=%4d average=%10.2f ns%n",
-                    row.algorithm(), row.vertices(), row.edges(), row.averageNs());
+                    row.getAlgorithm(), row.getVertices(), row.getEdges(), row.getAverageNs());
         }
         Files.write(tables.resolve("summary.csv"), summary);
         Files.writeString(tables.resolve("environment.txt"),
@@ -129,10 +169,10 @@ public class Benchmark {
         text.append("| Algorithm | V | E | Mean (microseconds) | Edge examinations | Comparisons | Find calls | Union calls | Parent traversals | Queue adds | Queue polls | Relaxations | Vertex visits |\n");
         text.append("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n");
         for (Row row : rows) {
-            Metrics m = row.metrics();
+            Metrics m = row.getMetrics();
             text.append(String.format(Locale.ROOT,
                     "| %s | %d | %d | %.3f | %d | %d | %d | %d | %d | %d | %d | %d | %d |%n",
-                    row.algorithm(), row.vertices(), row.edges(), row.averageNs() / 1000,
+                    row.getAlgorithm(), row.getVertices(), row.getEdges(), row.getAverageNs() / 1000,
                     m.edgeExaminations, m.comparisons, m.findCalls, m.unionCalls, m.parentTraversals,
                     m.queueAdds, m.queuePolls, m.relaxations, m.vertexVisits));
         }
@@ -163,29 +203,29 @@ public class Benchmark {
             Row prim = findRow(rows, "Prim", v);
             replacement.append(String.format(Locale.ROOT,
                     "- At V=%d, Kruskal averaged %.3f microseconds and Prim %.3f microseconds; %s was faster in this run. Kruskal recorded %d sort comparisons and %d union calls; Prim recorded %d heap comparisons and %d queue polls.%n",
-                    v, kruskal.averageNs() / 1000, prim.averageNs() / 1000,
-                    kruskal.averageNs() <= prim.averageNs() ? "Kruskal" : "Prim",
-                    kruskal.metrics().comparisons, kruskal.metrics().unionCalls,
-                    prim.metrics().comparisons, prim.metrics().queuePolls));
+                    v, kruskal.getAverageNs() / 1000, prim.getAverageNs() / 1000,
+                    kruskal.getAverageNs() <= prim.getAverageNs() ? "Kruskal" : "Prim",
+                    kruskal.getMetrics().comparisons, kruskal.getMetrics().unionCalls,
+                    prim.getMetrics().comparisons, prim.getMetrics().queuePolls));
         }
         replacement.append("\nKruskal sorts all E edges but can stop its DSU scan early. Prim avoids global sorting but maintains and drains a lazy heap, including obsolete candidate edges. Comparator counts are not the entire cost: allocations, list copies, DSU work, and heap maintenance also matter. A winner on these inputs is not a universal winner. DSU path compression and union by size keep root searches short; the traversal counter records actual link-following work, but no unoptimized DSU timing experiment is claimed.\n\n");
         Row sccSmall = findRow(rows, "Kosaraju", 10);
         Row sccLarge = findRow(rows, "Kosaraju", 1000);
         replacement.append(String.format(Locale.ROOT,
                 "Kosaraju averaged %.3f microseconds for the small input and %.3f for the large input. Its edge examinations are exactly 3E (first traversal, transpose construction, second traversal) and vertex visits are exactly 2V. These counts agree with O(V+E), even when elapsed-time ratios differ because of JVM and allocation effects.%n%n",
-                sccSmall.averageNs() / 1000, sccLarge.averageNs() / 1000));
+                sccSmall.getAverageNs() / 1000, sccLarge.getAverageNs() / 1000));
         replacement.append("Topological sorting on the DAG examines 2E edges and removes all V vertices. On the cyclic input it examines E edges for indegrees, but removes no vertices because the ring and forward chain give every vertex positive indegree. Its smaller measured cost is a property of this input, not a faster asymptotic bound for all cyclic graphs.\n\n");
         Row dijkstraSmall = findRow(rows, "Dijkstra", 10);
         Row dijkstraLarge = findRow(rows, "Dijkstra", 1000);
         replacement.append(String.format(Locale.ROOT,
                 "Dijkstra averaged %.3f microseconds on the small graph and %.3f on the large graph. It examines E edges to validate weights plus 2E adjacency entries because every vertex in the connected undirected graph is reachable. Successful relaxations and stale heap records depend on the weights and graph topology, explaining changes in heap comparisons and polls.%n%n",
-                dijkstraSmall.averageNs() / 1000, dijkstraLarge.averageNs() / 1000));
+                dijkstraSmall.getAverageNs() / 1000, dijkstraLarge.getAverageNs() / 1000));
         replacement.append("The fixed seed makes the inputs and operation counts reproducible, not wall-clock durations. Five measured runs, ten warmups, shared-JVM execution, and counters enabled during timing limit statistical conclusions. Use raw runs to inspect variability. No exact proportional growth or statistically significant speed difference is claimed.\n\n");
         Files.writeString(readme, original.substring(0, start) + replacement + original.substring(end));
     }
 
     private static Row findRow(List<Row> rows, String algorithm, int vertices) {
-        return rows.stream().filter(row -> row.algorithm().equals(algorithm)
-                && row.vertices() == vertices).findFirst().orElseThrow();
+        return rows.stream().filter(row -> row.getAlgorithm().equals(algorithm)
+                && row.getVertices() == vertices).findFirst().orElseThrow();
     }
 }
