@@ -1,6 +1,7 @@
 package graph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Graph {
@@ -9,7 +10,7 @@ public class Graph {
     private final List<Edge> edges;
     private final List<List<Edge>> adjacency;
 
-    public Graph( int vertexCount, boolean directed) {
+    public Graph(int vertexCount, boolean directed) {
         if (vertexCount <= 0) {
             throw new IllegalArgumentException("Vertex count must be positive.");
         }
@@ -29,7 +30,7 @@ public class Graph {
         }
     }
 
-    public void addEdge( int from, int to, int weight) {
+    public void addEdge(int from, int to, int weight) {
         validateVertex(from);
         validateVertex(to);
     
@@ -52,11 +53,11 @@ public class Graph {
     }
 
     public List<Edge> getEdges() {
-        return List.copyOf(edges);
+        return Collections.unmodifiableList(edges);
     }
 
     public List<Edge> getNeighbors(int vertex) {
         validateVertex(vertex);
-        return List.copyOf(adjacency.get(vertex));
+        return Collections.unmodifiableList(adjacency.get(vertex));
     }
 }

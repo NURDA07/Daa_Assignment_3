@@ -1,0 +1,10 @@
+Timestamp UTC: 2026-11-01T18:15:10.148363Z
+Java: 21.0.12.1
+VM: OpenJDK 64-Bit Server VM
+OS: Mac OS X 27.0.1
+Architecture: aarch64
+Available processors: 8
+Seed per graph: 42
+Warmups: 10
+Measured repeats: 5
+Operation counters are enabled during timing.
