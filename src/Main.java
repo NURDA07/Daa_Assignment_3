@@ -1,3 +1,4 @@
+import dsu.DSU;
 import graph.Edge;
 import graph.Graph;
 
@@ -16,5 +17,14 @@ public class Main {
                 edge.from + "-" + edge.to + ",weight:" +edge.weight
             );
         }
+        DSU groups = new DSU(3);
+
+        System.out.println(groups.union(0, 1));
+        System.out.println(groups.union(1, 2));
+        System.out.println(groups.union(0, 2));
+
+        System.out.println(groups.find(0));
+        System.out.println(groups.find(1));
+        System.out.println(groups.find(2));
     }
 }
