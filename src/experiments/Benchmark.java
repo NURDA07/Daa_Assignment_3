@@ -66,7 +66,7 @@ public class Benchmark {
             measure("Kosaraju", "cyclic-directed", v, e,
                     metrics -> Kosaraju.compute(cyclic, metrics).size(), rows, raw);
             measure("Topo-DAG", "dag", v, e,
-                    metrics -> TopoSort.compute(dag, metrics).order().size(), rows, raw);
+                    metrics -> TopoSort.compute(dag, metrics).getOrder().size(), rows, raw);
             measure("Topo-cycle", "cyclic-directed", v, e,
                     metrics -> TopoSort.compute(cyclic, metrics).hasCycle() ? 1 : 0, rows, raw);
             measure("Dijkstra", "connected-undirected", v, e,

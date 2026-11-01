@@ -9,9 +9,21 @@ import java.util.List;
 import java.util.Queue;
 
 public class TopoSort {
-    public record Result(List<Integer> order, boolean hasCycle) {
-        public Result {
-            order = List.copyOf(order);
+    public static class Result {
+        private final List<Integer> order;
+        private final boolean hasCycle;
+
+        public Result(List<Integer> order, boolean hasCycle) {
+            this.order = List.copyOf(order);
+            this.hasCycle = hasCycle;
+        }
+
+        public List<Integer> getOrder() {
+            return order;
+        }
+
+        public boolean hasCycle() {
+            return hasCycle;
         }
     }
 

@@ -34,7 +34,7 @@ public class Main {
         dag.addEdge(1, 3, 1);
         dag.addEdge(2, 3, 1);
         dag.addEdge(3, 4, 1);
-        System.out.println("\nDAG order: " + TopoSort.compute(dag).order());
+        System.out.println("\nDAG order: " + TopoSort.compute(dag).getOrder());
 
         Graph directed = new Graph(5, true);
         directed.addEdge(0, 1, 1);

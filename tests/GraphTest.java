@@ -179,11 +179,11 @@ public class GraphTest {
     private static void checkTopo(Graph graph) {
         TopoSort.Result result = TopoSort.compute(graph);
         check(!result.hasCycle(), "DAG accepted");
-        check(result.order().size() == graph.getVertexCount(), "Topo includes all vertices");
+        check(result.getOrder().size() == graph.getVertexCount(), "Topo includes all vertices");
         int[] position = new int[graph.getVertexCount()];
         Arrays.fill(position, -1);
-        for (int i = 0; i < result.order().size(); i++) {
-            int v = result.order().get(i);
+        for (int i = 0; i < result.getOrder().size(); i++) {
+            int v = result.getOrder().get(i);
             check(position[v] == -1, "Topo has no duplicates");
             position[v] = i;
         }
